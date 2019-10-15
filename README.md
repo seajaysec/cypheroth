@@ -7,7 +7,7 @@
 </p>
 
 
-### Documentation
+### Description
 
 This is a bash script that automates running cypher queries against Bloodhound data stored in a neo4j database.
 
@@ -16,6 +16,15 @@ I found myself re-running the same queries through the neo4j web interface on mu
 The cypher query is fully extensible. See below a formatting example.
 
 Please share any additional useful queries so I can add them to this project!
+
+### Prereqs
+
+* The cypher-shell command comes bundled with neo4j, and is required for this script to function
+  * If neo4j is installed and cypher-shell is not found, you may have an outdated version of neo4j
+  * The latest version can always be found at [this location](https://neo4j.com/download-center/)
+  * On Kali, upgrade to the latest version using [Neo4j's Debian repository](https://debian.neo4j.org)
+* If the ssconvert command is present, the script will combine all .csv output to sheets within a .xls file
+  * Install the gnumeric toolset with apt or brew to gain access to ssconvert
 
 ### Cypher Queries
 

@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# Check if required tool cypher-shell is installed
+cypher-shell -v foo >/dev/null 2>&1 || {
+    echo >&2 "cypher-shell required, but not installed.  Aborting."
+    exit 1
+}
+
 USAGE="
                     __                    __  __  
   _______  ______  / /_  ___  _________  / /_/ /_ 
@@ -86,12 +92,6 @@ echo "" >>./cyphers.txt
 # Set aliases
 n4jV="cypher-shell -u $USERNAME -p $PASSWORD --format verbose"
 n4jP="cypher-shell -u $USERNAME -p $PASSWORD --format plain"
-
-# Display variables
-echo 'neo4j username:' $USERNAME
-echo 'neo4j password:' $PASSWORD
-echo 'Domain Name:' $DOMAIN
-echo 'Verbose:' $VERBOSE\n
 
 # The meat and potatoes
 cat cyphers.txt | while read line; do
