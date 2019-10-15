@@ -13,7 +13,7 @@ This is a bash script that automates running cypher queries against Bloodhound d
 
 I found myself re-running the same queries through the Neo4j web interface on multiple assessments and figured there must be an easier way. 😅
 
-The cypher query is fully extensible. See below a formatting example.
+The list of cypher queries to run is fully extensible. The formatting example below shows how to add your own.
 
 Please share any additional useful queries so I can add them to this project!
 
