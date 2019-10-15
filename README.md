@@ -61,10 +61,8 @@ Example: `All Usernames;MATCH (u:User) RETURN u.name;usernames.csv`
 
 ### Troubleshooting
 
-If you are running an oudated version of `cypher-shell` you receive the following error:
-```
-DateTime is not supported as a return type in Bolt protocol version 1. Please make sure driver supports at least protocol version 2. Driver upgrade is most likely required.
-```
+If you are running an oudated version of `cypher-shell` you may receive the following error:
+`DateTime is not supported as a return type in Bolt protocol version 1. Please make sure driver supports at least protocol version 2. Driver upgrade is most likely required.`
 
 To fix, [update Neo4j](https://neo4j.com/download-center/) to the latest version.
 
