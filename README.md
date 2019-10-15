@@ -19,12 +19,12 @@ Please share any additional useful queries so I can add them to this project!
 
 ### Prereqs
 
-* The cypher-shell command comes bundled with neo4j, and is required for this script to function
-  * If neo4j is installed and cypher-shell is not found, you may have an outdated version of neo4j
-  * The latest version can always be found at [this location](https://neo4j.com/download-center/)
-  * On Kali, upgrade to the latest version using [Neo4j's Debian repository](https://debian.neo4j.org)
-* If the ssconvert command is present, the script will combine all .csv output to sheets within a .xls file
-  * Install the gnumeric toolset with apt or brew to gain access to ssconvert
+* The `cypher-shell` command comes bundled with neo4j, and is required for this script to function
+  * _If neo4j is installed and `cypher-shell` is not found, you may have an outdated version of neo4j_
+  * _The latest version can always be found at [this location](https://neo4j.com/download-center/)_
+  * _On Kali, upgrade to the latest version using [Neo4j's Debian repository](https://debian.neo4j.org)_
+* Optional: If the `ssconvert` command is present, the script will combine all .csv output to sheets within a .xls file
+  * _Install the gnumeric toolset with apt or brew to gain access to ssconvert_
 
 ### Cypher Queries
 
@@ -58,6 +58,15 @@ To add additional queries, edit `queries.txt` and add a line using the following
 `Description;Cypher Query;Output File`
 
 Example: `All Usernames;MATCH (u:User) RETURN u.name;usernames.csv`
+
+### Troubleshooting
+
+If you are running an oudated version of `cypher-shell` you receive the following error:
+```
+DateTime is not supported as a return type in Bolt protocol version 1. Please make sure driver supports at least protocol version 2. Driver upgrade is most likely required.
+```
+
+To fix, [update neo4j](https://neo4j.com/download-center/) to the latest version.
 
 ### Author
 Chris Farrell ([@seajay](https://twitter.com/seajay))
