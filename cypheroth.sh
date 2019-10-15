@@ -86,8 +86,7 @@ VERBOSE=${VERBOSE^^}
 mkdir ./cypherout 2>/dev/null
 
 # Sanitize cypher queries
-sed -i '' '/^$/d' ./queries.txt
-echo "" >>./queries.txt
+sed -i '/^$/d' ./queries.txt
 
 # Set aliases
 n4jV="cypher-shell -u $USERNAME -p $PASSWORD --format verbose"
@@ -108,8 +107,8 @@ cat queries.txt | while read line; do
     echo -e "\e[3mSaved to ./cypherout/$OUTPUT\e[23m\n"
 done
 
-# Delete Empty Output Files
-find ./cypherout/ -type f -size 1 | xargs rm -f
+echo 'Removing empty output files'
+find ./cypherout/* -type f -empty -delete
 
 # If ssconvert is installed, join all .csv output to .xls
 if which ssconvert >/dev/null; then
