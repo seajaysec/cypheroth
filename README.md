@@ -1,5 +1,5 @@
 # cypheroth
- Automated, extensible toolset that runs cypher queries against Bloodhound's neo4j backend and saves output to csv.
+ Automated, extensible toolset that runs cypher queries against Bloodhound's Neo4j backend and saves output to csv.
 
 
 <p align="center">
@@ -9,9 +9,9 @@
 
 ### Description
 
-This is a bash script that automates running cypher queries against Bloodhound data stored in a neo4j database.
+This is a bash script that automates running cypher queries against Bloodhound data stored in a Neo4j database.
 
-I found myself re-running the same queries through the neo4j web interface on multiple assessments and figured there must be an easier way. 😅
+I found myself re-running the same queries through the Neo4j web interface on multiple assessments and figured there must be an easier way. 😅
 
 The cypher query is fully extensible. See below a formatting example.
 
@@ -19,8 +19,8 @@ Please share any additional useful queries so I can add them to this project!
 
 ### Prereqs
 
-* The `cypher-shell` command comes bundled with neo4j, and is required for this script to function
-  * _If neo4j is installed and `cypher-shell` is not found, you may have an outdated version of neo4j_
+* The `cypher-shell` command comes bundled with Neo4j, and is required for this script to function
+  * _If Neo4j is installed and `cypher-shell` is not found, you may have an outdated version of Neo4j_
   * _The latest version can always be found at [this location](https://neo4j.com/download-center/)_
   * _On Kali, upgrade to the latest version using [Neo4j's Debian repository](https://debian.neo4j.org)_
 * Optional: If the `ssconvert` command is present, the script will combine all .csv output to sheets within a .xls file
@@ -66,7 +66,7 @@ If you are running an oudated version of `cypher-shell` you receive the followin
 DateTime is not supported as a return type in Bolt protocol version 1. Please make sure driver supports at least protocol version 2. Driver upgrade is most likely required.
 ```
 
-To fix, [update neo4j](https://neo4j.com/download-center/) to the latest version.
+To fix, [update Neo4j](https://neo4j.com/download-center/) to the latest version.
 
 ### Author
 Chris Farrell ([@seajay](https://twitter.com/seajay))
