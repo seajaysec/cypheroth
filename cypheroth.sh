@@ -86,15 +86,15 @@ VERBOSE=${VERBOSE^^}
 mkdir ./cypherout 2>/dev/null
 
 # Sanitize cypher queries
-sed -i '' '/^$/d' ./cyphers.txt
-echo "" >>./cyphers.txt
+sed -i '' '/^$/d' ./queries.txt
+echo "" >>./queries.txt
 
 # Set aliases
 n4jV="cypher-shell -u $USERNAME -p $PASSWORD --format verbose"
 n4jP="cypher-shell -u $USERNAME -p $PASSWORD --format plain"
 
 # The meat and potatoes
-cat cyphers.txt | while read line; do
+cat queries.txt | while read line; do
     DESCRIPTION=$(echo $line | cut -d ';' -f 1)
     QUERY=$(echo $line | cut -d ';' -f 2)
     OUTPUT=$(echo $line | cut -d ';' -f 3)
