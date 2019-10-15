@@ -1,13 +1,5 @@
 #!/usr/bin/env bash
 
-# Check if required tool cypher-shell is installed
-if which cypher-shell >/dev/null; then
-    echo -e "\e[1mcypher-shell installation verified\e[22m\n\n"
-else
-    echo -e "\e[1mInstall cypher-shell\e[22m"
-    exit 1
-fi
-
 USAGE="
                     __                    __  __  
   _______  ______  / /_  ___  _________  / /_/ /_ 
@@ -88,15 +80,21 @@ VERBOSE=${VERBOSE^^}
 mkdir ./cypherout 2>/dev/null
 
 # Sanitize cypher queries
-sed -i '/^$/d' ./queries.txt
-echo "" >>./queries.txt
+sed -i '' '/^$/d' ./cyphers.txt
+echo "" >>./cyphers.txt
 
 # Set aliases
 n4jV="cypher-shell -u $USERNAME -p $PASSWORD --format verbose"
 n4jP="cypher-shell -u $USERNAME -p $PASSWORD --format plain"
 
+# Display variables
+echo 'neo4j username:' $USERNAME
+echo 'neo4j password:' $PASSWORD
+echo 'Domain Name:' $DOMAIN
+echo 'Verbose:' $VERBOSE\n
+
 # The meat and potatoes
-cat queries.txt | while read line; do
+cat cyphers.txt | while read line; do
     DESCRIPTION=$(echo $line | cut -d ';' -f 1)
     QUERY=$(echo $line | cut -d ';' -f 2)
     OUTPUT=$(echo $line | cut -d ';' -f 3)
