@@ -18,7 +18,7 @@ Flags:
   -u	Neo4J Username (Required)
   -p	Neo4J Password (Required)
   -d	Fully Qualified Domain Name (Required)
-  -v    Verbose mode (Optional) (Default:FALSE)
+  -v    Verbose mode - Show first 15 lines of output (Optional) (Default:FALSE)
   -h	Help text and usage example (Optional)
 
 Example: ./cypheroth.sh -u neo4j -p neo4jj -d testlab.local -v true
@@ -85,8 +85,7 @@ VERBOSE=${VERBOSE^^}
 # Create output dir
 mkdir ./cypherout 2>/dev/null
 
-# Set aliases
-n4jV="cypher-shell -u $USERNAME -p $PASSWORD --format verbose"
+# Set alias
 n4jP="cypher-shell -u $USERNAME -p $PASSWORD --format plain"
 
 # The meat and potatoes
@@ -94,14 +93,14 @@ awk 'NF' queries.txt | while read line; do
     DESCRIPTION=$(echo $line | cut -d ';' -f 1)
     QUERY=$(echo $line | cut -d ';' -f 2)
     OUTPUT=$(echo $line | cut -d ';' -f 3)
-    echo -e "\e[1m$DESCRIPTION\e[22m"
+    echo -e "\e[3m$DESCRIPTION\e[23m"
+    $n4jP "$QUERY" >./cypherout/$OUTPUT
     if [ "$VERBOSE" == "TRUE" ]; then
         tput rmam
-        $n4jV "$QUERY" | sed \$d
+        column -s, -t ./cypherout/$OUTPUT | head -n 15 2>/dev/null
         tput smam
+        echo -e "\e[1mSaved to ./cypherout/$OUTPUT\e[22m\n"
     fi
-    $n4jP "$QUERY" >./cypherout/$OUTPUT
-    echo -e "\e[3mSaved to ./cypherout/$OUTPUT\e[23m\n"
 done
 
 echo 'Removing empty output files'
