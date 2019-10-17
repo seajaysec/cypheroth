@@ -105,7 +105,7 @@ awk 'NF' queries.txt | while read line; do
 done
 
 echo 'Removing empty output files'
-find ./cypherout/* -type f -empty -delete
+find . -type f -size 0 -print0 | xargs -I{} -0 rm {}
 
 # If ssconvert is installed, join all .csv output to .xls
 if which ssconvert >/dev/null; then
