@@ -71,6 +71,12 @@ Driver upgrade is most likely required.
 
 To fix, [update Neo4j](https://neo4j.com/download-center/) to the latest version.
 
+If you're running this remotely, you might get a Connection Refused message. To
+fix, ensure neo4j is listening remotely. This can be changed by uncommenting the following line and adding an IP address (0.0.0.0) for all interfaces, in neo4j.conf. Be aware of the security implications of this!
+```
+dbms.connector.bolt.listen_address=0.0.0.0:7687
+```
+
 ### Author
 Chris Farrell ([@seajay](https://twitter.com/seajay))
 

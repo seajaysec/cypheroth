@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
+# Trap ctrl-c and call ctrl_c(). Exit script
+trap ctrl_c INT
+ctrl_c() {
+        echo -e "\nGot a CTRL-C. Stopping script."
+        # Remove VM from config just in case
+        modify_config $vmname
+        print_failure
+        exit 0
+}
+
 # Check if required tool cypher-shell is installed
 cypher-shell -v foo >/dev/null 2>&1 || {
     echo >&2 "cypher-shell required, but not installed.  Aborting."
@@ -9,7 +19,7 @@ cypher-shell -v foo >/dev/null 2>&1 || {
 USAGE="
                     __                    __  __  
   _______  ______  / /_  ___  _________  / /_/ /_ 
- / ___/ / / / __ \\/ __ \/ _ \/ ___/ __ \\/ __/ __ \\
+
 / /__/ /_/ / /_/ / / / /  __/ /  / /_/ / /_/ / / /
 \___/\__, / .___/_/ /_/\___/_/   \____/\__/_/ /_/ 
     /____/_/                                      
@@ -18,10 +28,11 @@ Flags:
   -u	Neo4J Username (Required)
   -p	Neo4J Password (Required)
   -d	Fully Qualified Domain Name (Required)
+  -a	Bolt address (Optional. Default: bolt://localhost:7687)
   -v    Verbose mode - Show first 15 lines of output (Optional) (Default:FALSE)
   -h	Help text and usage example (Optional)
 
-Example: ./cypheroth.sh -u neo4j -p neo4jj -d testlab.local -v true
+Example: ./cypheroth.sh -u neo4j -p bloodhound -a bolt://10.0.0.1:7687 -d testlab.local -v true
 
 Files are added to the ./cypherout directory
 "
@@ -36,7 +47,7 @@ fi
 VERBOSE='FALSE'
 
 # Flag configuration
-while getopts "u:p:d:v:h" FLAG; do
+while getopts "u:p:d:a:v:h" FLAG; do
     case $FLAG in
     u)
         USERNAME=$OPTARG
@@ -46,6 +57,9 @@ while getopts "u:p:d:v:h" FLAG; do
         ;;
     d)
         DOMAIN=$OPTARG
+        ;;
+    a)
+        ADDRESS=$OPTARG
         ;;
     v)
         VERBOSE=$OPTARG
@@ -71,7 +85,7 @@ elif [ -z ${PASSWORD+x} ]; then
     echo "$USAGE"
     exit
 elif [ -z ${DOMAIN+x} ]; then
-    echo "User domain flag (-f) is not set."
+    echo "User domain flag (-d) is not set."
     echo "$USAGE"
     exit
 fi
@@ -86,7 +100,7 @@ VERBOSE=${VERBOSE^^}
 mkdir ./cypherout 2>/dev/null
 
 # Set alias
-n4jP="cypher-shell -u $USERNAME -p $PASSWORD --format plain"
+n4jP="cypher-shell -u $USERNAME -p $PASSWORD -a $ADDRESS --format plain" 
 
 # The meat and potatoes
 awk 'NF' queries.txt | while read line; do
