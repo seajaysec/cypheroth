@@ -32,11 +32,12 @@ if [ $# -eq 0 ]; then
     exit
 fi
 
-# Initial variable state
+# Initial variable states
 VERBOSE='FALSE'
+ADDRESS='127.0.0.1:7687'
 
 # Flag configuration
-while getopts "u:p:d:v:h" FLAG; do
+while getopts "u:p:d:a:v:h" FLAG; do
     case $FLAG in
     u)
         USERNAME=$OPTARG
@@ -46,6 +47,9 @@ while getopts "u:p:d:v:h" FLAG; do
         ;;
     d)
         DOMAIN=$OPTARG
+        ;;
+    a)
+        ADDRESS=$OPTARG
         ;;
     v)
         VERBOSE=$OPTARG
@@ -71,7 +75,7 @@ elif [ -z ${PASSWORD+x} ]; then
     echo "$USAGE"
     exit
 elif [ -z ${DOMAIN+x} ]; then
-    echo "User domain flag (-f) is not set."
+    echo "User domain flag (-d) is not set."
     echo "$USAGE"
     exit
 fi
@@ -86,7 +90,7 @@ VERBOSE=${VERBOSE^^}
 mkdir ./cypherout 2>/dev/null
 
 # Set alias
-n4jP="cypher-shell -u $USERNAME -p $PASSWORD --format plain"
+n4jP="cypher-shell -u $USERNAME -p $PASSWORD -a $ADDRESS --format plain"
 
 # The meat and potatoes
 awk 'NF' queries.txt | while read line; do
