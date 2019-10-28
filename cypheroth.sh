@@ -58,7 +58,7 @@ prepWork() {
 
 connCheck() {
     # Connection check
-    TEST=$(cypher-shell -u $USERNAME -p $PASSWORD -a $ADDRESS --format plain "MATCH (n) RETURN CASE WHEN count(n) > 0 THEN 'Connected' ELSE 'Not Connected' END" 2>&1 | tail -n 1)
+    TEST=$(cypher-shell -u "$USERNAME" -p "$PASSWORD" -a "$ADDRESS" --format plain "MATCH (n) RETURN CASE WHEN count(n) > 0 THEN 'Connected' ELSE 'Not Connected' END" 2>&1 | tail -n 1)
     if [[ "$TEST" =~ "refused" ]]; then
         echo "🅇 Neo4j not started."
         echo "Quitting Cypheroth."
@@ -75,22 +75,22 @@ connCheck() {
         runQueries
     else
         echo "Unknown error:"
-        echo $TEST
+        echo "$TEST"
         exit 1
     fi
 }
 
 runQueries() {
     # The meat and potatoes
-    awk 'NF' queries.txt | while read line; do
-        DESCRIPTION=$(echo $line | cut -d ';' -f 1)
-        QUERY=$(echo $line | cut -d ';' -f 2)
-        OUTPUT=$(echo $line | cut -d ';' -f 3)
+    awk 'NF' queries.txt | while read -r line; do
+        DESCRIPTION=$(echo "$line" | cut -d ';' -f 1)
+        QUERY=$(echo "$line" | cut -d ';' -f 2)
+        OUTPUT=$(echo "$line" | cut -d ';' -f 3)
         echo -e "\e[3m$DESCRIPTION\e[23m"
-        $n4jP "$QUERY" >./cypherout/$OUTPUT
+        $n4jP "$QUERY" >./cypherout/"$OUTPUT"
         if [ "$VERBOSE" == "TRUE" ]; then
             tput rmam
-            column -s, -t ./cypherout/$OUTPUT | head -n 15 2>/dev/null
+            column -s, -t ./cypherout/"$OUTPUT" | head -n 15 2>/dev/null
             tput smam
             echo -e "\e[1mSaved to ./cypherout/$OUTPUT\e[22m\n"
             trap ctrlC SIGINT
