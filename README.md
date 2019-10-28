@@ -66,7 +66,7 @@ All Usernames;MATCH (u:User) RETURN u.name;usernames.csv
 
 Example 2:
 ```
-MATCH (u:User) MATCH (g:Group {name:'DOMAIN ADMINS@$DOMAIN'}) RETURN u.displayname;domainAdmins.csv
+All Domain Admins;MATCH (u:User) MATCH (g:Group {name:'DOMAIN ADMINS@$DOMAIN'}) RETURN u.displayname;domainAdmins.csv
 ```
 
 ### Troubleshooting
