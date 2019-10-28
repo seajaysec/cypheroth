@@ -56,6 +56,7 @@ The current query set requests the following information:
 To add additional queries, edit `queries.txt` and add a line using the following format:
 
 `Description;Cypher Query;Output File`
+**If adding a query that requires the Domain value to be set, save it as $DOMAIN.**
 
 Example: `All Usernames;MATCH (u:User) RETURN u.name;usernames.csv`
 
