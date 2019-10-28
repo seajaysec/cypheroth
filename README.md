@@ -59,9 +59,15 @@ To add additional queries, edit `queries.txt` and add a line using the following
 
 *If adding a query that requires the Domain value to be set, save it as $DOMAIN.*
 
-Example 1: `All Usernames;MATCH (u:User) RETURN u.name;usernames.csv`
+Example 1:
+```
+All Usernames;MATCH (u:User) RETURN u.name;usernames.csv
+```
 
-Example 2: `MATCH (u:User) MATCH (g:Group {name:'DOMAIN ADMINS@$DOMAIN'}) RETURN u.displayname;domainAdmins.csv`
+Example 2:
+```
+MATCH (u:User) MATCH (g:Group {name:'DOMAIN ADMINS@$DOMAIN'}) RETURN u.displayname;domainAdmins.csv
+```
 
 ### Troubleshooting
 
