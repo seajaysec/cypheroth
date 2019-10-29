@@ -75,7 +75,7 @@ connCheck() {
         if [ "$VERBOSE" == "TRUE" ]; then
             echo "☑ Neo4j started"
             echo "☑ Connected to the database."
-            echo -e "Running Cypheroth queries.\n"
+            echo -e "Running Cypheroth queries."
         fi
         # Carry on to runQueries function
         runQueries
@@ -93,20 +93,23 @@ runQueries() {
         DESCRIPTION=$(echo "$line" | cut -d ';' -f 1)
         QUERY=$(echo "$line" | cut -d ';' -f 2)
         OUTPUT=$(echo "$line" | cut -d ';' -f 3)
-        echo -e "\e[3m$DESCRIPTION\e[23m"
+        echo ""
+        echo -e "$DESCRIPTION"
         $n4jP "$QUERY" >./"$DOMAIN"/"$OUTPUT"
+        sed -i '' 's/\"//g' ./"$DOMAIN"/"$OUTPUT"
         echo "Line Count:" $(wc -l <./"$DOMAIN"/"$OUTPUT")
         if [ "$VERBOSE" == "TRUE" ]; then
             echo "Sample:"
             tput rmam
             column -s, -t ./"$DOMAIN"/"$OUTPUT" | head -n 15 2>/dev/null
             tput smam
-            echo -e "\e[1mSaved to ./"$DOMAIN"/"$OUTPUT"\e[22m\n"
+            echo -e "Saved to ./"$DOMAIN"/"$OUTPUT"\n"
             trap ctrlC SIGINT
         fi
         sleep 0.5
     done
     # Carry on to endJobs function
+    endJobs
 }
 
 endJobs() {
@@ -116,10 +119,10 @@ endJobs() {
     # If ssconvert is installed, join all .csv output to .xls
     if ssconvert --version >/dev/null; then
         ssconvert --merge-to=./"$DOMAIN"/all.xls ./"$DOMAIN"/*.csv 2>/dev/null
-        echo -e "\e[1mAll CSVs joined to ./"$DOMAIN"/all.xls\e[22m"
+        echo -e "All CSVs joined to ./"$DOMAIN"/all.xls"
         echo
     else
-        echo -e "\e[1mInstall ssconvert (apt or brew install gnumeric) to auto-join csv output to sheets in an xls workbook.\e[22m"
+        echo -e "Install ssconvert (apt or brew install gnumeric) to auto-join csv output to sheets in an xls workbook."
     fi
     exit
 }
