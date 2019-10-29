@@ -17,6 +17,8 @@ The list of cypher queries to run is fully extensible. The formatting example be
 
 Please share any additional useful queries so I can add them to this project!
 
+*Fully tested to be working in Bash on Linux, macOS, and Windows*
+
 ### Prereqs
 
 * The `cypher-shell` command comes bundled with Neo4j, and is required for this script to function
@@ -53,7 +55,7 @@ The current query set requests the following information:
 * What permissions does Everyone/Authenticated users/Domain users/Domain computers have
 * All users with SPN in Domain Admin group, with enabled status and unconstrained delegation status displayed
 
-To add additional queries, edit `queries.txt` and add a line using the following format:
+To add additional queries, edit the `queries` array within cypheroth.sh and add a line using the following format:
 
 `Description;Cypher Query;Output File`
 
