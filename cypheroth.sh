@@ -21,12 +21,12 @@ usage() {
     -u	Neo4J Username (Required)
     -p	Neo4J Password (Required)
     -d	Fully Qualified Domain Name (Required)
-    -v    Verbose mode - Show first 15 lines of output (Optional) (Default:FALSE)
+    -v  Verbose mode - Show first 15 lines of output (Optional) (Default: FALSE)
     -h	Help text and usage example (Optional)
 
     Example: ./cypheroth.sh -u neo4j -p neo4jj -d testlab.local  -a localhost:7687 -v true
 
-    Files are added to the ./cypherout directory
+    Files are added to a subdirectory named after the FQDN.
 "
     exit 1
 }
@@ -51,7 +51,7 @@ prepWork() {
     # Make sure $VERBOSE is UpperCase
     VERBOSE=${VERBOSE^^}
     # Create output dir
-    mkdir ./cypherout 2>/dev/null
+    mkdir ./$DOMAIN 2>/dev/null
     # Set alias
     n4jP="cypher-shell -u $USERNAME -p $PASSWORD -a $ADDRESS --format plain"
 }
@@ -87,12 +87,12 @@ runQueries() {
         QUERY=$(echo "$line" | cut -d ';' -f 2)
         OUTPUT=$(echo "$line" | cut -d ';' -f 3)
         echo -e "\e[3m$DESCRIPTION\e[23m"
-        $n4jP "$QUERY" >./cypherout/"$OUTPUT"
+        $n4jP "$QUERY" >./"$DOMAIN"/"$OUTPUT"
         if [ "$VERBOSE" == "TRUE" ]; then
             tput rmam
-            column -s, -t ./cypherout/"$OUTPUT" | head -n 15 2>/dev/null
+            column -s, -t ./"$DOMAIN"/"$OUTPUT" | head -n 15 2>/dev/null
             tput smam
-            echo -e "\e[1mSaved to ./cypherout/$OUTPUT\e[22m\n"
+            echo -e "\e[1mSaved to ./"$DOMAIN"/"$OUTPUT"\e[22m\n"
             trap ctrlC SIGINT
         fi
     done
@@ -104,8 +104,8 @@ endJobs() {
 
     # If ssconvert is installed, join all .csv output to .xls
     if ssconvert --version >/dev/null; then
-        ssconvert --merge-to=./cypherout/all.xls ./cypherout/*.csv 2>/dev/null
-        echo -e "\e[1mAll CSVs joined to ./cypherout/all.xls\e[22m"
+        ssconvert --merge-to=./"$DOMAIN"/all.xls ./"$DOMAIN"/*.csv 2>/dev/null
+        echo -e "\e[1mAll CSVs joined to ./"$DOMAIN"/all.xls\e[22m"
         echo
     else
         echo -e "\e[1mInstall ssconvert (apt or brew install gnumeric) to auto-join csv output to sheets in an xls workbook.\e[22m"
