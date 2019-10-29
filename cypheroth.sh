@@ -22,7 +22,7 @@ usage() {
     Flags:
     -u	Neo4J Username (Required)
     -p	Neo4J Password (Required)
-    -d	Fully Qualified Domain Name (Required)
+    -d	Fully Qualified Domain Name (Required) (Case Sensitive)
     -v  Verbose mode - Show first 15 lines of output (Optional) (Default: FALSE)
     -h	Help text and usage example (Optional)
 
@@ -49,8 +49,6 @@ flagChecks() {
 }
 
 prepWork() {
-    # Make sure $DOMAIN is UpperCase
-    DOMAIN=${DOMAIN,,}
     # Make sure $VERBOSE is UpperCase
     VERBOSE=${VERBOSE^^}
     # Create output dir
@@ -74,9 +72,11 @@ connCheck() {
         echo "Quitting Cypheroth."
         exit 1
     elif [[ "$TEST" =~ "Connected" ]]; then
-        echo "☑ Neo4j started"
-        echo "☑ Connected to the database."
-        echo -e "Running Cypheroth queries.\n"
+        if [ "$VERBOSE" == "TRUE" ]; then
+            echo "☑ Neo4j started"
+            echo "☑ Connected to the database."
+            echo -e "Running Cypheroth queries.\n"
+        fi
         # Carry on to runQueries function
         runQueries
     else
@@ -96,6 +96,8 @@ runQueries() {
         echo -e "\e[3m$DESCRIPTION\e[23m"
         $n4jP "$QUERY" >./"$DOMAIN"/"$OUTPUT"
         if [ "$VERBOSE" == "TRUE" ]; then
+            echo "Line Count:" $(wc -l <./"$DOMAIN"/"$OUTPUT")
+            echo "Sample:"
             tput rmam
             column -s, -t ./"$DOMAIN"/"$OUTPUT" | head -n 15 2>/dev/null
             tput smam
