@@ -30,7 +30,7 @@ Please share any additional useful queries so I can add them to this project!
 
 ### Cypher Queries
 
-The current query set requests the following information:
+There are nearly 60 queries in the script currently. This is a sample of the information you'll receive:
 
 * Full User Property List
 * Full Computer Property List
@@ -40,20 +40,7 @@ The current query set requests the following information:
 * Full Group Property List
 * Computers with Admins
 * Computers without Admins
-* Groups with Computers and Admins
-* Group Admin Info
-* Users that are not AdminCount 1, have generic all, and no local admin
-* Users that are admin on 1+ machines, sorted by admin count
-* Kerberoastable users sorted by total machine admin count
 * Kerberoastable users and computers where they are admins
-* Computers that members of the Domain Users group can RDP to
-* Computers where users which can Return, if they belong to adm or svr accounts
-* Computer names where each domain user has derivative Admin privileges to
-* Users with paths to High Value groups
-* Every computer account that has local admin rights on other computers
-* Find which domain Groups are Admins to what computers
-* What permissions does Everyone/Authenticated users/Domain users/Domain computers have
-* All users with SPN in Domain Admin group, with enabled status and unconstrained delegation status displayed
 
 To add additional queries, edit the `queries` array within cypheroth.sh and add a line using the following format:
 
