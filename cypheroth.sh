@@ -50,7 +50,7 @@ flagChecks() {
 
 prepWork() {
     # Make sure $VERBOSE is UpperCase
-    VERBOSE=${VERBOSE^^}
+    VERBOSE=$(echo "$VERBOSE" | tr a-z A-Z)
     # Create output dir
     mkdir ./$DOMAIN 2>/dev/null
     # Set alias
