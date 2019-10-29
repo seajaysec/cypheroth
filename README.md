@@ -1,5 +1,5 @@
 # Cypheroth
- Automated, extensible toolset that runs cypher queries against Bloodhound's Neo4j backend and saves output to csv.
+ Automated, extensible toolset that runs cypher queries against Bloodhound's Neo4j backend and saves output to spreadsheets.
 
 
 <p align="center">
