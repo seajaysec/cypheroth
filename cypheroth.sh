@@ -123,6 +123,7 @@ endJobs() {
     else
         echo -e "Install ssconvert (apt or brew install gnumeric) to auto-join csv output to sheets in an xls workbook."
     fi
+    echo -e "\nScript complete!\n"
     exit
 }
 
