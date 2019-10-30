@@ -23,10 +23,11 @@ usage() {
     -u	Neo4J Username (Required)
     -p	Neo4J Password (Required)
     -d	Fully Qualified Domain Name (Required) (Case Sensitive)
-    -v  Verbose mode - Show first 15 lines of output (Optional) (Default: FALSE)
+    -a	Bolt address (Optional) (Default: localhost:7687)
+    -v  Verbose mode (Optional) (Default:FALSE)
     -h	Help text and usage example (Optional)
 
-    Example: ./cypheroth.sh -u neo4j -p neo4jj -d testlab.local  -a localhost:7687 -v true
+    Example: ./cypheroth.sh -u neo4j -p BloodHound -a 10.0.0.1:7687 -d testlab.local -v true
 
     Files are added to a subdirectory named after the FQDN."
     exit 1
@@ -88,22 +89,20 @@ connCheck() {
 
 runQueries() {
     # The meat and potatoes
-    #awk 'NF' queries.txt | while read -r line; do
     for line in "${queries[@]}"; do
         DESCRIPTION=$(echo "$line" | cut -d ';' -f 1)
         QUERY=$(echo "$line" | cut -d ';' -f 2)
         OUTPUT=$(echo "$line" | cut -d ';' -f 3)
         echo ""
         echo -e "$DESCRIPTION"
-        $n4jP "$QUERY" >./"$DOMAIN"/"$OUTPUT"
-        sed -i '' 's/\"//g' ./"$DOMAIN"/"$OUTPUT"
+        $n4jP "$QUERY" | tr -d '"' >./"$DOMAIN"/"$OUTPUT"
+        echo -e "Saved to ./"$DOMAIN"/"$OUTPUT"\n"
         echo "Line Count:" $(wc -l <./"$DOMAIN"/"$OUTPUT")
         if [ "$VERBOSE" == "TRUE" ]; then
             echo "Sample:"
             tput rmam
             column -s, -t ./"$DOMAIN"/"$OUTPUT" | head -n 15 2>/dev/null
             tput smam
-            echo -e "Saved to ./"$DOMAIN"/"$OUTPUT"\n"
             trap ctrlC SIGINT
         fi
         sleep 0.5
@@ -169,7 +168,7 @@ done
 
 declare -a queries=(
     "All users with SPN in Domain Admin group, with enabled status and unconstrained delegation status displayed;MATCH (u:User {hasspn:true}) MATCH (g:Group {name:'DOMAIN ADMINS@$DOMAIN'}) RETURN u.name AS Username,u.displayname AS DisplayName,u.enabled AS Enabled,u.unconstraineddelegation AS UnconstrainedDelegation;spnDATargets.csv"
-    "All Domain Admins;MATCH (u:User) MATCH (g:Group {name:'DOMAIN ADMINS@$DOMAIN'}) RETURN u.name AS UserName, u.displayname AS DisplayName, u.domain AS Domain, u.enabled AS Enabled, u.highvalue AS HighValue, u.objectsid AS SID , u.description AS Description, u.title AS Title, u.email as Email, datetime({epochSeconds:toInteger(u.llInt)}) AS LastLogon, datetime({epochSeconds:toInteger(u.lldInt)}) AS LLDate, datetime({epochSeconds:toInteger(u.lltsInt)}) AS LLTimeStamp, datetime({epochSeconds:toInteger(u.pwdlsInt)}) AS PasswordLastSet, u.owned AS Owned, u.sensitive AS Sensitive, u.admincount AS AdminCount, u.hasspn AS HasSPN, u.unconstraineddelegation AS UnconstrainedDelegation, u.dontreqpreauth AS DontReqPreAuth, u.passwordnotreqd AS PasswordNotRequired, u.homedirectory AS HomeDirectory, u.serviceprincipalnames AS ServicePrincipalNames;domainAdmins.csv"
+    "All Domain Admins;MATCH (u:User) MATCH (g:Group {name:'DOMAIN ADMINS@$DOMAIN'}) SET u.llInt = coalesce(u.lastlogon,'1') SET u.lldInt = coalesce(u.lldate,'1') SET u.lltsInt = coalesce(u.lastlogontimestamp,'1') SET u.pwdlsInt = coalesce(u.pwdlastset,'1') RETURN u.name AS UserName, u.displayname AS DisplayName, u.domain AS Domain, u.enabled AS Enabled, u.highvalue AS HighValue, u.objectsid AS SID, u.description AS Description, u.title AS Title, u.email as Email, datetime({epochSeconds:toInteger(u.llInt)}) AS LastLogon, datetime({epochSeconds:toInteger(u.lldInt)}) AS LLDate, datetime({epochSeconds:toInteger(u.lltsInt)}) AS LLTimeStamp, datetime({epochSeconds:toInteger(u.pwdlsInt)}) AS PasswordLastSet, u.owned AS Owned, u.sensitive AS Sensitive, u.admincount AS AdminCount, u.hasspn AS HasSPN, u.unconstraineddelegation AS UnconstrainedDelegation, u.dontreqpreauth AS DontReqPreAuth, u.passwordnotreqd AS PasswordNotRequired, u.homedirectory AS HomeDirectory, u.serviceprincipalnames AS ServicePrincipalNames;domainAdmins.csv"
     "Kerberoastable users sorted by total machine admin count;MATCH (u:User {hasspn:true}) OPTIONAL MATCH (u)-[:AdminTo]->(c1:Computer) OPTIONAL MATCH (u)-[:MemberOf*1..]->(:Group)-[:AdminTo]->(c2:Computer) WITH u,COLLECT(c1) + COLLECT(c2) AS tempVar UNWIND tempVar AS comps RETURN u.name,u.displayname,u.domain,u.description,u.highvalue,COUNT(DISTINCT(comps)) ORDER BY COUNT(DISTINCT(comps)) DESC;DomainUserRDPComputers.csv"
     "Kerberoastable users and computers where they are admins;OPTIONAL MATCH (u1:User) WHERE u1.hasspn=true OPTIONAL MATCH (u1)-[r:AdminTo]->(c:Computer) RETURN u1.name AS KerberoastableUser,c.name AS LocalAdminComputerName,c.operatingsystem AS OS,c.description AS Description,c.highvalue AS HighValue, c.unconstraineddelegation AS UnconstrainedDelegation;kerbUsersAdminComputers.csv"
     "Users with paths to High Value groups;MATCH (u:User) MATCH (g:Group {highvalue:true}) MATCH p = shortestPath((u:User)-[r:AddMember|AdminTo|AllExtendedRights|AllowedToDelegate|Contains|ExecuteDCOM|ForceChangePassword|GenericAll|GenericWrite|GpLink|HasSession|MemberOf|Owns|ReadLAPSPassword|TrustedBy|WriteDacl|WriteOwner|GetChanges|GetChangesAll*1..]->(g)) RETURN DISTINCT(u.name) AS UserName,u.enabled as Enabled, u.description AS Description,count(p) as PathCount order by u.name;UserHVGroupPaths.csv"
