@@ -88,16 +88,20 @@ connCheck() {
 }
 
 runQueries() {
-    # The meat and potatoes
+    # Reading from queries array
     for line in "${queries[@]}"; do
+        # Separating out values from array by ; delineation
         DESCRIPTION=$(echo "$line" | cut -d ';' -f 1)
         QUERY=$(echo "$line" | cut -d ';' -f 2)
         OUTPUT=$(echo "$line" | cut -d ';' -f 3)
+        # Information for user
         echo ""
         echo -e "$DESCRIPTION"
+        # Runs query, removes double quotes using tr, saves output to file
         $n4jP "$QUERY" | tr -d '"' >./"$DOMAIN"/"$OUTPUT"
         echo -e "Saved to ./"$DOMAIN"/"$OUTPUT""
         echo "Line Count:" $(wc -l <./"$DOMAIN"/"$OUTPUT")
+        # If verbosity is enabled, disables wordwrap temporarily and shows 15 lines of columnar output from file
         if [ "$VERBOSE" == "TRUE" ]; then
             echo "Sample:"
             tput rmam
@@ -105,6 +109,7 @@ runQueries() {
             tput smam
             trap ctrlC SIGINT
         fi
+        # Sleeps 0.5 seconds to try to avoid running into user lockout
         sleep 0.5
     done
     # Carry on to endJobs function
@@ -112,9 +117,9 @@ runQueries() {
 }
 
 endJobs() {
-    echo 'Removing empty output files'
+    echo -e "\nRemoving empty output files\n"
+    # Finds empty files, then uses xargs to remove them - most cross-platform compatible method available
     find . -type f -size 0 -print0 | xargs -I{} -0 rm {}
-
     # If ssconvert is installed, join all .csv output to .xls
     if ssconvert --version >/dev/null; then
         ssconvert --merge-to=./"$DOMAIN"/all.xls ./"$DOMAIN"/*.csv 2>/dev/null
@@ -167,6 +172,14 @@ while getopts "u:p:d:a:v:h" FLAG; do
     esac
 done
 
+# Add queries in the following semicolon-delimited format:
+# "Description;Cypher Query;Output.csv"
+# Example:
+# "All Usernames;MATCH (u:User) RETURN u.name;usernames.csv"
+#
+# If adding a query that requires the Domain value to be set, save it as $DOMAIN.
+# Example:
+# "All Domain Admins;MATCH (u:User) MATCH (g:Group {name:'DOMAIN ADMINS@$DOMAIN'}) RETURN u.displayname;domainAdmins.csv"
 declare -a queries=(
     "All users with SPN in Domain Admin group, with enabled status and unconstrained delegation status displayed;MATCH (u:User {hasspn:true}) MATCH (g:Group {name:'DOMAIN ADMINS@$DOMAIN'}) RETURN u.name AS Username,u.displayname AS DisplayName,u.enabled AS Enabled,u.unconstraineddelegation AS UnconstrainedDelegation;spnDATargets.csv"
     "All Domain Admins;MATCH (u:User) MATCH (g:Group {name:'DOMAIN ADMINS@$DOMAIN'}) SET u.llInt = coalesce(u.lastlogon,'1') SET u.lldInt = coalesce(u.lldate,'1') SET u.lltsInt = coalesce(u.lastlogontimestamp,'1') SET u.pwdlsInt = coalesce(u.pwdlastset,'1') RETURN u.name AS UserName, u.displayname AS DisplayName, u.domain AS Domain, u.enabled AS Enabled, u.highvalue AS HighValue, u.objectsid AS SID, u.description AS Description, u.title AS Title, u.email as Email, datetime({epochSeconds:toInteger(u.llInt)}) AS LastLogon, datetime({epochSeconds:toInteger(u.lldInt)}) AS LLDate, datetime({epochSeconds:toInteger(u.lltsInt)}) AS LLTimeStamp, datetime({epochSeconds:toInteger(u.pwdlsInt)}) AS PasswordLastSet, u.owned AS Owned, u.sensitive AS Sensitive, u.admincount AS AdminCount, u.hasspn AS HasSPN, u.unconstraineddelegation AS UnconstrainedDelegation, u.dontreqpreauth AS DontReqPreAuth, u.passwordnotreqd AS PasswordNotRequired, u.homedirectory AS HomeDirectory, u.serviceprincipalnames AS ServicePrincipalNames;domainAdmins.csv"
