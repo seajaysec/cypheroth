@@ -96,7 +96,7 @@ runQueries() {
         echo ""
         echo -e "$DESCRIPTION"
         $n4jP "$QUERY" | tr -d '"' >./"$DOMAIN"/"$OUTPUT"
-        echo -e "Saved to ./"$DOMAIN"/"$OUTPUT"\n"
+        echo -e "Saved to ./"$DOMAIN"/"$OUTPUT""
         echo "Line Count:" $(wc -l <./"$DOMAIN"/"$OUTPUT")
         if [ "$VERBOSE" == "TRUE" ]; then
             echo "Sample:"
