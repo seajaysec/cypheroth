@@ -106,11 +106,10 @@ runQueries() {
         wait_file $SAVEPATH $TIMEOUT || {
             echo "Query not completed before timeout limit was reached"
         }
-        # Runs the file-check function with a timeout of 0 seconds to immediately determine if the file's created
-        # && means the message is printed if the file is found
-        wait_file $SAVEPATH 0 && {
+        # If the output file does exist, say where it's located
+        if [[ -e "$SAVEPATH" ]]; then
             echo -e "Saved to $SAVEPATH"
-        }
+        fi
         echo "Line Count:" $(wc -l <$SAVEPATH)
         # If verbosity is enabled, disables wordwrap temporarily and shows 15 lines of columnar output from file
         if [ "$VERBOSE" == "TRUE" ]; then

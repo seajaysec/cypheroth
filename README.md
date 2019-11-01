@@ -19,6 +19,10 @@ Please share any additional useful queries so I can add them to this project!
 
 *Fully tested to be working in Bash on Linux, macOS, and Windows*
 
+### Demo
+
+![Cypheroth Demo](./img/demo.svg)
+
 ### Prereqs
 
 * The `cypher-shell` command comes bundled with Neo4j, and is required for this script to function
