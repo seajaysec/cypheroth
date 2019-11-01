@@ -49,7 +49,7 @@ Example with All Options:
   `./cypheroth.sh -u neo4j -p BloodHound -d TESTLAB.LOCAL -a 10.0.0.1:7687 -t 10 -v true`
 
 
-Files are added to a subdirectory named after the FQDN."
+Files are added to a subdirectory named after the FQDN.
 
 ### Cypher Queries
 
