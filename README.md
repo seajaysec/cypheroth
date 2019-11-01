@@ -21,7 +21,8 @@ Please share any additional useful queries so I can add them to this project!
 
 ### Demo
 
-![Cypheroth Demo](./img/demo.svg)
+![Cypheroth Demo](./img/loldemo.svg)
+(Slowed down and rendered with [lolcat](https://github.com/busyloop/lolcat) for your viewing pleasure)
 
 ### Prereqs
 
