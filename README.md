@@ -37,13 +37,13 @@ Please share any additional useful queries so I can add them to this project!
 
 Flags:
 ```
-  -u	Neo4J Username (Required)
-  -p	Neo4J Password (Required)
-  -d	Fully Qualified Domain Name (Required) (Case Sensitive)
-  -a	Bolt address (Optional) (Default: localhost:7687)
+  -u Neo4J Username (Required)
+  -p Neo4J Password (Required)
+  -d Fully Qualified Domain Name (Required) (Case Sensitive)
+  -a Bolt address (Optional) (Default: localhost:7687)
   -t Query Timeout (Optional) (Default: 30s)
   -v Verbose mode (Optional) (Default:FALSE)
-  -h	Help text and usage example (Optional)
+  -h Help text and usage example (Optional)
 ```
 Example with Defaults:
 
