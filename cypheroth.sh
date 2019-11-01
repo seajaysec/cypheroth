@@ -24,7 +24,7 @@ usage() {
     -p	Neo4J Password (Required)
     -d	Fully Qualified Domain Name (Required) (Case Sensitive)
     -a	Bolt address (Optional) (Default: localhost:7687)
-    -t  Query Timeout (Optional) (Default: 10) (Measured in Seconds)
+    -t  Query Timeout (Optional) (Default: 30s)
     -v  Verbose mode (Optional) (Default:FALSE)
     -h	Help text and usage example (Optional)
 
@@ -32,7 +32,7 @@ usage() {
     ./cypheroth.sh -u neo4j -p BloodHound -d TESTLAB.LOCAL
 
     Example with All Options:
-    ./cypheroth.sh -u neo4j -p hunter2 -d bigtech.corp -a 10.0.0.1:7687 -t 600 -v true
+    ./cypheroth.sh -u neo4j -p hunter2 -d BigTech.corp -a 10.0.0.1:7687 -t 5m -v true
 
     Files are added to a subdirectory named after the FQDN.
     
@@ -105,25 +105,25 @@ runQueries() {
         # Information for user
         echo ""
         echo -e "$DESCRIPTION"
-        # Runs query, removes double quotes using tr, saves output to file
-        $n4jP "$QUERY" | tr -d '"' >$SAVEPATH
-        # Waits for either the file to be created or the timeout length to be reached
-        # || means the message is printed if the file is not found
-        wait_file $SAVEPATH $TIMEOUT || {
-            echo "Query not completed before timeout limit was reached"
-        }
+        # Runs query for, removes double quotes using tr, saves output to file
+        # Timeout governs how long the script will wait for this command
+        # time timeout $TIMEOUT $n4jP "$QUERY" | tr -d '"' >$SAVEPATH
+        timeout $TIMEOUT $n4jP "$QUERY" >$SAVEPATH
         # If the output file does exist, say where it's located
-        if [[ -e "$SAVEPATH" ]]; then
+        if [ $? -eq 0 ]; then
             echo -e "Saved to $SAVEPATH"
-        fi
-        echo "Line Count:" $(wc -l <$SAVEPATH)
-        # If verbosity is enabled, disables wordwrap temporarily and shows 15 lines of columnar output from file
-        if [ "$VERBOSE" == "TRUE" ]; then
-            echo "Sample:"
-            tput rmam
-            column -s, -t $SAVEPATH | head -n 15 2>/dev/null
-            tput smam
-            trap ctrlC SIGINT
+            tr -d '"' <$SAVEPATH 1<>$SAVEPATH
+            # If verbosity is enabled, disables wordwrap temporarily and shows 15 lines of columnar output from file
+            if [ "$VERBOSE" == "TRUE" ]; then
+                echo "Sample:"
+                tput rmam
+                column -s, -t $SAVEPATH | head -n 15 2>/dev/null
+                tput smam
+                trap ctrlC SIGINT
+            fi
+            echo "Line Count:" $(wc -l <$SAVEPATH)
+        else
+            echo "**Query Timed Out**" >&2
         fi
     done
     # Carry on to endJobs function
@@ -151,18 +151,6 @@ ctrlC() {
     exit 1
 }
 
-# Function credit goes to Elifarley on StackExchange https://superuser.com/a/917073
-wait_file() {
-    local file="$1"
-    shift
-    local wait_seconds="${1:-10}"
-    shift # 10 seconds as default timeout
-
-    until test $((wait_seconds--)) -eq 0 -o -f "$file"; do sleep 1; done
-
-    ((++wait_seconds))
-}
-
 # Check if any flags were set. If not, print out help.
 if [ $# -eq 0 ]; then
     usage
@@ -170,7 +158,7 @@ fi
 # Initial variable states
 VERBOSE='FALSE'
 ADDRESS='127.0.0.1:7687'
-TIMEOUT=10
+TIMEOUT='30s'
 
 # Flag configuration
 while getopts "u:p:d:a:t:v:h" FLAG; do
@@ -223,7 +211,7 @@ declare -a queries=(
     "Users that are not AdminCount 1, have generic all, and no local admin;MATCH (u:User)-[:GenericAll]->(c:Computer) WHERE NOT u.admincount AND NOT (u)-[:AdminTo]->(c) RETURN u.name,u.displayname,c.name,c.highvalue;specialAdmins.csv"
     "Users that are admin on 1+ machines, sorted by admin count;MATCH (U:User)-[r:MemberOf|:AdminTo*1..]->(C:Computer) WITH U.name as n, COUNT(DISTINCT(C)) as c WHERE c>0 RETURN n AS UserName, c ORDER BY c DESC;UserAdminCount.csv"
     "Users with Description field populated;MATCH (u:User) WHERE NOT u.description IS null RETURN u.name AS UserName ,u.description AS Description;userDescriptions.csv"
-    "Users with paths to Domain Controllers;;UsersWithPathsToDCs.csv"
+    "Users with paths to Domain Controllers;MATCH (u:User), (g:Group {name: 'DOMAIN ADMINS@TESTLAB.LOCAL'}), p=shortestPath((u)-[*1..]->(g)) RETURN u.name AS UserName,u.displayname AS DisplayName, length(p) AS Hops ORDER BY Hops;UsersWithPathsToDCs.csv"
     "What permissions does Everyone/Authenticated users/Domain users/Domain computers have;MATCH p=(m:Group)- [r:AddMember|AdminTo|AllExtendedRights|AllowedToDelegate|CanRDP|Contains|ExecuteDCOM|ForceChangePassword|GenericAll|GenericWrite|GetChanges|GetChangesAll|HasSession|Owns|ReadLAPSPassword|SQLAdmin|TrustedBy|WriteDACL|WriteOwner|AddAllowedToAct|AllowedToAct]->(t) WHERE m.objectsid ENDS WITH '-513' OR m.objectsid ENDS WITH '-515' OR m.objectsid ENDS WITH 'S-1-5-11' OR m.objectsid ENDS WITH 'S-1-1-0' RETURN m.name,TYPE(r),t.name,t.enabled;interestingPermissions.csv"
     "Every computer account that has local admin rights on other computers;MATCH (c1:Computer) OPTIONAL MATCH (c1)-[:AdminTo]->(c2:Computer) OPTIONAL MATCH (c1)-[:MemberOf*1..]->(:Group)-[:AdminTo]->(c3:Computer) WITH COLLECT(c2) + COLLECT(c3) AS tempVar,c1 UNWIND tempVar AS computers RETURN c1.name AS Owner,computers.name AS Ownee;compOwners.csv"
     "Find which domain Groups are Admins to what computers;MATCH (g:Group) OPTIONAL MATCH (g)-[:AdminTo]->(c1:Computer) OPTIONAL MATCH (g)-[:MemberOf*1..]->(:Group)-[:AdminTo]->(c2:Computer) WITH g, COLLECT(c1) + COLLECT(c2) AS tempVar UNWIND tempVar AS computers RETURN g.name,g.highvalue,computers.name,computers.highvalue;groupsAdminningComputers.csv"

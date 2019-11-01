@@ -21,7 +21,7 @@ Please share any additional useful queries so I can add them to this project!
 
 ### Demo
 
-![Cypheroth Demo](./img/demo_v1_3_04.svg)
+![Cypheroth Demo](./img/demo_v1_4.svg)
 (Rendered with [termtosvg](https://github.com/nbedos/termtosvg) for your viewing pleasure)
 
 ### Prereqs
@@ -37,13 +37,13 @@ Please share any additional useful queries so I can add them to this project!
 
 Flags:
 ```
--u  Neo4J Username (Required)
--p  Neo4J Password (Required)
--d  Fully Qualified Domain Name (Required) (Case Sensitive)
--a  Bolt address (Optional) (Default: localhost:7687)
--t  Query Timeout (Optional) (Default: 10) (Measured in Seconds)
--v  Verbose mode (Optional) (Default:FALSE)
--h  Help text and usage example (Optional)
+  -u	Neo4J Username (Required)
+  -p	Neo4J Password (Required)
+  -d	Fully Qualified Domain Name (Required) (Case Sensitive)
+  -a	Bolt address (Optional) (Default: localhost:7687)
+  -t  Query Timeout (Optional) (Default: 30s)
+  -v  Verbose mode (Optional) (Default:FALSE)
+  -h	Help text and usage example (Optional)
 ```
 Example with Defaults:
 
@@ -51,7 +51,7 @@ Example with Defaults:
 
 Example with All Options:
 
-  `./cypheroth.sh -u neo4j -p hunter2 -d bigtech.corp -a 10.0.0.1:7687 -t 600 -v true`
+  `./cypheroth.sh -u neo4j -p hunter2 -d BigTech.corp -a 10.0.0.1:7687 -t 5m -v true`
 
 
 Files are added to a subdirectory named after the FQDN.
