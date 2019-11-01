@@ -105,26 +105,31 @@ runQueries() {
         # Information for user
         echo ""
         echo -e "$DESCRIPTION"
-        # Runs query for, removes double quotes using tr, saves output to file
-        # Timeout governs how long the script will wait for this command
-        # time timeout $TIMEOUT $n4jP "$QUERY" | tr -d '"' >$SAVEPATH
+        # For up to the timeout length, runs query and saves to savepath
         timeout $TIMEOUT $n4jP "$QUERY" >$SAVEPATH
-        # If the output file does exist, say where it's located
+        # If the timeout wasn't reached...
         if [ $? -eq 0 ]; then
             echo -e "Saved to $SAVEPATH"
+            # Removes double quotes from output file
             tr -d '"' <$SAVEPATH 1<>$SAVEPATH
-            # If verbosity is enabled, disables wordwrap temporarily and shows 15 lines of columnar output from file
+            # If verbosity is enabled...
             if [ "$VERBOSE" == "TRUE" ]; then
                 echo "Sample:"
+                # Disable wordwrap for stdout
                 tput rmam
+                # Output first 15 lines of output file
                 column -s, -t $SAVEPATH | head -n 15 2>/dev/null
+                # Re-enable wordwrap for stdout
                 tput smam
-                trap ctrlC SIGINT
             fi
+            # Show the # of lines in the output file
             echo "Line Count:" $(wc -l <$SAVEPATH)
+        # If the timeout WAS reached...
         else
             echo "**Query Timed Out**" >&2
         fi
+        # Check for ctrl-c
+        trap ctrlC SIGINT
     done
     # Carry on to endJobs function
     endJobs
