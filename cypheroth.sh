@@ -28,9 +28,15 @@ usage() {
     -v  Verbose mode (Optional) (Default:FALSE)
     -h	Help text and usage example (Optional)
 
-    Example: ./cypheroth.sh -u neo4j -p BloodHound -a 10.0.0.1:7687 -d testlab.local -v true -t 10
+    Example with Defaults:
+    ./cypheroth.sh -u neo4j -p BloodHound -d TESTLAB.LOCAL
 
-    Files are added to a subdirectory named after the FQDN."
+    Example with All Options:
+    ./cypheroth.sh -u neo4j -p BloodHound -d TESTLAB.LOCAL -a 10.0.0.1:7687 -t 10 -v true
+
+    Files are added to a subdirectory named after the FQDN.
+    
+    "
     exit 1
 }
 

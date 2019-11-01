@@ -21,7 +21,7 @@ Please share any additional useful queries so I can add them to this project!
 
 ### Demo
 
-![Cypheroth Demo](./img/demo.svg)
+![Cypheroth Demo](./img/demo_v1_3_04.svg)
 (Rendered with [termtosvg](https://github.com/nbedos/termtosvg) for your viewing pleasure)
 
 ### Prereqs
