@@ -24,10 +24,11 @@ usage() {
     -p	Neo4J Password (Required)
     -d	Fully Qualified Domain Name (Required) (Case Sensitive)
     -a	Bolt address (Optional) (Default: localhost:7687)
+    -t  Query Timeout (Optional) (Default: 10) (Measured in Seconds)
     -v  Verbose mode (Optional) (Default:FALSE)
     -h	Help text and usage example (Optional)
 
-    Example: ./cypheroth.sh -u neo4j -p BloodHound -a 10.0.0.1:7687 -d testlab.local -v true
+    Example: ./cypheroth.sh -u neo4j -p BloodHound -a 10.0.0.1:7687 -d testlab.local -v true -t 10
 
     Files are added to a subdirectory named after the FQDN."
     exit 1
@@ -94,18 +95,24 @@ runQueries() {
         DESCRIPTION=$(echo "$line" | cut -d ';' -f 1)
         QUERY=$(echo "$line" | cut -d ';' -f 2)
         OUTPUT=$(echo "$line" | cut -d ';' -f 3)
+        SAVEPATH=./"$DOMAIN"/"$OUTPUT"
         # Information for user
         echo ""
         echo -e "$DESCRIPTION"
         # Runs query, removes double quotes using tr, saves output to file
-        $n4jP "$QUERY" | tr -d '"' >./"$DOMAIN"/"$OUTPUT"
-        echo -e "Saved to ./"$DOMAIN"/"$OUTPUT""
-        echo "Line Count:" $(wc -l <./"$DOMAIN"/"$OUTPUT")
+        $n4jP "$QUERY" | tr -d '"' >$SAVEPATH
+        wait_file $SAVEPATH $TIMEOUT || {
+            echo "Query not completed before timeout limit was reached"
+        }
+        wait_file $SAVEPATH 0 && {
+            echo -e "Saved to $SAVEPATH"
+        }
+        echo "Line Count:" $(wc -l <$SAVEPATH)
         # If verbosity is enabled, disables wordwrap temporarily and shows 15 lines of columnar output from file
         if [ "$VERBOSE" == "TRUE" ]; then
             echo "Sample:"
             tput rmam
-            column -s, -t ./"$DOMAIN"/"$OUTPUT" | head -n 15 2>/dev/null
+            column -s, -t $SAVEPATH | head -n 15 2>/dev/null
             tput smam
             trap ctrlC SIGINT
         fi
@@ -137,6 +144,18 @@ ctrlC() {
     exit 1
 }
 
+# Function credit goes to Elifarley on StackExchange https://superuser.com/a/917073
+wait_file() {
+    local file="$1"
+    shift
+    local wait_seconds="${1:-10}"
+    shift # 10 seconds as default timeout
+
+    until test $((wait_seconds--)) -eq 0 -o -f "$file"; do sleep 1; done
+
+    ((++wait_seconds))
+}
+
 # Check if any flags were set. If not, print out help.
 if [ $# -eq 0 ]; then
     usage
@@ -144,9 +163,10 @@ fi
 # Initial variable states
 VERBOSE='FALSE'
 ADDRESS='127.0.0.1:7687'
+TIMEOUT=10
 
 # Flag configuration
-while getopts "u:p:d:a:v:h" FLAG; do
+while getopts "u:p:d:a:t:v:h" FLAG; do
     case $FLAG in
     u)
         USERNAME=$OPTARG
@@ -159,6 +179,9 @@ while getopts "u:p:d:a:v:h" FLAG; do
         ;;
     a)
         ADDRESS=$OPTARG
+        ;;
+    t)
+        TIMEOUT=$OPTARG
         ;;
     v)
         VERBOSE=$OPTARG
