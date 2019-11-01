@@ -32,7 +32,7 @@ usage() {
     ./cypheroth.sh -u neo4j -p BloodHound -d TESTLAB.LOCAL
 
     Example with All Options:
-    ./cypheroth.sh -u neo4j -p BloodHound -d TESTLAB.LOCAL -a 10.0.0.1:7687 -t 10 -v true
+    ./cypheroth.sh -u neo4j -p hunter2 -d bigtech.corp -a 10.0.0.1:7687 -t 600 -v true
 
     Files are added to a subdirectory named after the FQDN.
     
