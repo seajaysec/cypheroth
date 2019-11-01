@@ -28,6 +28,23 @@ Please share any additional useful queries so I can add them to this project!
 * Optional: If the `ssconvert` command is present, the script will combine all .csv output to sheets within a .xls file
   * _Install the gnumeric toolset with apt or brew to gain access to ssconvert_
 
+### Usage
+
+```
+    Flags:
+    -u	Neo4J Username (Required)
+    -p	Neo4J Password (Required)
+    -d	Fully Qualified Domain Name (Required) (Case Sensitive)
+    -a	Bolt address (Optional) (Default: localhost:7687)
+    -t  Query Timeout (Optional) (Default: 10) (Measured in Seconds)
+    -v  Verbose mode (Optional) (Default:FALSE)
+    -h	Help text and usage example (Optional)
+
+    Example: ./cypheroth.sh -u neo4j -p BloodHound -a 10.0.0.1:7687 -d testlab.local -v true -t 10
+
+    Files are added to a subdirectory named after the FQDN."
+```
+
 ### Cypher Queries
 
 There are nearly 60 queries in the script currently. This is a sample of the information you'll receive:
