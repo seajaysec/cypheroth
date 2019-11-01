@@ -101,9 +101,13 @@ runQueries() {
         echo -e "$DESCRIPTION"
         # Runs query, removes double quotes using tr, saves output to file
         $n4jP "$QUERY" | tr -d '"' >$SAVEPATH
+        # Waits for either the file to be created or the timeout length to be reached
+        # || means the message is printed if the file is not found
         wait_file $SAVEPATH $TIMEOUT || {
             echo "Query not completed before timeout limit was reached"
         }
+        # Runs the file-check function with a timeout of 0 seconds to immediately determine if the file's created
+        # && means the message is printed if the file is found
         wait_file $SAVEPATH 0 && {
             echo -e "Saved to $SAVEPATH"
         }
@@ -116,8 +120,6 @@ runQueries() {
             tput smam
             trap ctrlC SIGINT
         fi
-        # Sleeps 0.5 seconds to try to avoid running into user lockout
-        sleep 0.5
     done
     # Carry on to endJobs function
     endJobs
