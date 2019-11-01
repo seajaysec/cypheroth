@@ -41,8 +41,8 @@ Flags:
   -p	Neo4J Password (Required)
   -d	Fully Qualified Domain Name (Required) (Case Sensitive)
   -a	Bolt address (Optional) (Default: localhost:7687)
-  -t  Query Timeout (Optional) (Default: 30s)
-  -v  Verbose mode (Optional) (Default:FALSE)
+  -t Query Timeout (Optional) (Default: 30s)
+  -v Verbose mode (Optional) (Default:FALSE)
   -h	Help text and usage example (Optional)
 ```
 Example with Defaults:
