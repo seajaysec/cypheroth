@@ -19,6 +19,11 @@ Please share any additional useful queries so I can add them to this project!
 
 *Fully tested to be working in Bash on Linux, macOS, and Windows*
 
+### Demo
+
+![Cypheroth Demo](./img/demo_v1_4.svg)
+(Rendered with [termtosvg](https://github.com/nbedos/termtosvg) for your viewing pleasure)
+
 ### Prereqs
 
 * The `cypher-shell` command comes bundled with Neo4j, and is required for this script to function
@@ -27,6 +32,29 @@ Please share any additional useful queries so I can add them to this project!
   * _On Kali, upgrade to the latest version using [Neo4j's Debian repository](https://debian.neo4j.org)_
 * Optional: If the `ssconvert` command is present, the script will combine all .csv output to sheets within a .xls file
   * _Install the gnumeric toolset with apt or brew to gain access to ssconvert_
+
+### Usage
+
+Flags:
+```
+  -u	Neo4J Username (Required)
+  -p	Neo4J Password (Required)
+  -d	Fully Qualified Domain Name (Required) (Case Sensitive)
+  -a	Bolt address (Optional) (Default: localhost:7687)
+  -t  Query Timeout (Optional) (Default: 30s)
+  -v  Verbose mode (Optional) (Default:FALSE)
+  -h	Help text and usage example (Optional)
+```
+Example with Defaults:
+
+  `./cypheroth.sh -u neo4j -p BloodHound -d TESTLAB.LOCAL`
+
+Example with All Options:
+
+  `./cypheroth.sh -u neo4j -p hunter2 -d BigTech.corp -a 10.0.0.1:7687 -t 5m -v true`
+
+
+Files are added to a subdirectory named after the FQDN.
 
 ### Cypher Queries
 

@@ -24,12 +24,19 @@ usage() {
     -p	Neo4J Password (Required)
     -d	Fully Qualified Domain Name (Required) (Case Sensitive)
     -a	Bolt address (Optional) (Default: localhost:7687)
+    -t  Query Timeout (Optional) (Default: 30s)
     -v  Verbose mode (Optional) (Default:FALSE)
     -h	Help text and usage example (Optional)
 
-    Example: ./cypheroth.sh -u neo4j -p BloodHound -a 10.0.0.1:7687 -d testlab.local -v true
+    Example with Defaults:
+    ./cypheroth.sh -u neo4j -p BloodHound -d TESTLAB.LOCAL
 
-    Files are added to a subdirectory named after the FQDN."
+    Example with All Options:
+    ./cypheroth.sh -u neo4j -p hunter2 -d BigTech.corp -a 10.0.0.1:7687 -t 5m -v true
+
+    Files are added to a subdirectory named after the FQDN.
+    
+    "
     exit 1
 }
 
@@ -94,23 +101,35 @@ runQueries() {
         DESCRIPTION=$(echo "$line" | cut -d ';' -f 1)
         QUERY=$(echo "$line" | cut -d ';' -f 2)
         OUTPUT=$(echo "$line" | cut -d ';' -f 3)
+        SAVEPATH=./"$DOMAIN"/"$OUTPUT"
         # Information for user
         echo ""
         echo -e "$DESCRIPTION"
-        # Runs query, removes double quotes using tr, saves output to file
-        $n4jP "$QUERY" | tr -d '"' >./"$DOMAIN"/"$OUTPUT"
-        echo -e "Saved to ./"$DOMAIN"/"$OUTPUT""
-        echo "Line Count:" $(wc -l <./"$DOMAIN"/"$OUTPUT")
-        # If verbosity is enabled, disables wordwrap temporarily and shows 15 lines of columnar output from file
-        if [ "$VERBOSE" == "TRUE" ]; then
-            echo "Sample:"
-            tput rmam
-            column -s, -t ./"$DOMAIN"/"$OUTPUT" | head -n 15 2>/dev/null
-            tput smam
-            trap ctrlC SIGINT
+        # For up to the timeout length, runs query and saves to savepath
+        timeout $TIMEOUT $n4jP "$QUERY" >$SAVEPATH
+        # If the timeout wasn't reached...
+        if [ $? -eq 0 ]; then
+            echo -e "Saved to $SAVEPATH"
+            # Removes double quotes from output file
+            tr -d '"' <$SAVEPATH 1<>$SAVEPATH
+            # If verbosity is enabled...
+            if [ "$VERBOSE" == "TRUE" ]; then
+                echo "Sample:"
+                # Disable wordwrap for stdout
+                tput rmam
+                # Output first 15 lines of output file
+                column -s, -t $SAVEPATH | head -n 15 2>/dev/null
+                # Re-enable wordwrap for stdout
+                tput smam
+            fi
+            # Show the # of lines in the output file
+            echo "Line Count:" $(wc -l <$SAVEPATH)
+        # If the timeout WAS reached...
+        else
+            echo "**Query Timed Out**" >&2
         fi
-        # Sleeps 0.5 seconds to try to avoid running into user lockout
-        sleep 0.5
+        # Check for ctrl-c
+        trap ctrlC SIGINT
     done
     # Carry on to endJobs function
     endJobs
@@ -144,9 +163,10 @@ fi
 # Initial variable states
 VERBOSE='FALSE'
 ADDRESS='127.0.0.1:7687'
+TIMEOUT='30s'
 
 # Flag configuration
-while getopts "u:p:d:a:v:h" FLAG; do
+while getopts "u:p:d:a:t:v:h" FLAG; do
     case $FLAG in
     u)
         USERNAME=$OPTARG
@@ -159,6 +179,9 @@ while getopts "u:p:d:a:v:h" FLAG; do
         ;;
     a)
         ADDRESS=$OPTARG
+        ;;
+    t)
+        TIMEOUT=$OPTARG
         ;;
     v)
         VERBOSE=$OPTARG
@@ -193,11 +216,10 @@ declare -a queries=(
     "Users that are not AdminCount 1, have generic all, and no local admin;MATCH (u:User)-[:GenericAll]->(c:Computer) WHERE NOT u.admincount AND NOT (u)-[:AdminTo]->(c) RETURN u.name,u.displayname,c.name,c.highvalue;specialAdmins.csv"
     "Users that are admin on 1+ machines, sorted by admin count;MATCH (U:User)-[r:MemberOf|:AdminTo*1..]->(C:Computer) WITH U.name as n, COUNT(DISTINCT(C)) as c WHERE c>0 RETURN n AS UserName, c ORDER BY c DESC;UserAdminCount.csv"
     "Users with Description field populated;MATCH (u:User) WHERE NOT u.description IS null RETURN u.name AS UserName ,u.description AS Description;userDescriptions.csv"
-    "Users with paths to Domain Controllers;;UsersWithPathsToDCs.csv"
+    "Users with paths to Domain Controllers;MATCH (u:User), (g:Group {name: 'DOMAIN ADMINS@TESTLAB.LOCAL'}), p=shortestPath((u)-[*1..]->(g)) RETURN u.name AS UserName,u.displayname AS DisplayName, length(p) AS Hops ORDER BY Hops;UsersWithPathsToDCs.csv"
     "What permissions does Everyone/Authenticated users/Domain users/Domain computers have;MATCH p=(m:Group)- [r:AddMember|AdminTo|AllExtendedRights|AllowedToDelegate|CanRDP|Contains|ExecuteDCOM|ForceChangePassword|GenericAll|GenericWrite|GetChanges|GetChangesAll|HasSession|Owns|ReadLAPSPassword|SQLAdmin|TrustedBy|WriteDACL|WriteOwner|AddAllowedToAct|AllowedToAct]->(t) WHERE m.objectsid ENDS WITH '-513' OR m.objectsid ENDS WITH '-515' OR m.objectsid ENDS WITH 'S-1-5-11' OR m.objectsid ENDS WITH 'S-1-1-0' RETURN m.name,TYPE(r),t.name,t.enabled;interestingPermissions.csv"
     "Every computer account that has local admin rights on other computers;MATCH (c1:Computer) OPTIONAL MATCH (c1)-[:AdminTo]->(c2:Computer) OPTIONAL MATCH (c1)-[:MemberOf*1..]->(:Group)-[:AdminTo]->(c3:Computer) WITH COLLECT(c2) + COLLECT(c3) AS tempVar,c1 UNWIND tempVar AS computers RETURN c1.name AS Owner,computers.name AS Ownee;compOwners.csv"
     "Find which domain Groups are Admins to what computers;MATCH (g:Group) OPTIONAL MATCH (g)-[:AdminTo]->(c1:Computer) OPTIONAL MATCH (g)-[:MemberOf*1..]->(:Group)-[:AdminTo]->(c2:Computer) WITH g, COLLECT(c1) + COLLECT(c2) AS tempVar UNWIND tempVar AS computers RETURN g.name,g.highvalue,computers.name,computers.highvalue;groupsAdminningComputers.csv"
-    "Computers where users which can Return, if they belong to adm or svr accounts;MATCH (c:Computer) MATCH (n:User)-[r:MemberOf]->(g:Group)  WHERE g.name = 'DOMAIN ADMINS@$DOMAIN' optional match (g:Group)-[:CanRDP]->(c) OPTIONAL MATCH (u1:User)-[:CanRDP]->(c) where u1.enabled = true and u1.name contains 'ADM' OR u1.name contains 'SVR' OPTIONAL MATCH (u2:User)-[:MemberOf*1..]->(:Group)-[:CanRDP]->(c) where u2.enabled = true and u2.name contains 'ADM' OR u2.name contains 'SVR' WITH COLLECT(u1) + COLLECT(u2) + collect(n) as tempVar,c UNWIND tempVar as users RETURN c.name AS ComputerName,COLLECT(DISTINCT(users.name)) as UserNames,count(DISTINCT(users.name)) AS UserCount ORDER BY UserCount desc;ReturnUserComps.csv"
     "Computer names where each domain user has derivative Admin privileges to;MATCH (u:User)-[:MemberOf*1..]->(:Group)-[:AdminTo]->(c:Computer) RETURN DISTINCT(c.name) AS COMPUTER, u.name AS USER ORDER BY u.name;unrolledUserAdminPrivs.csv"
     "Computers with Admins;MATCH (n)-[r:AdminTo]->(c:Computer) WITH COLLECT(c.name) as compsWithAdmins MATCH (c2:Computer) WHERE c2.name in compsWithAdmins RETURN c2.name AS ComputerName ORDER BY ComputerName ASC;compsWithAdmins.csv"
     "Computers without Admins;MATCH (n)-[r:AdminTo]->(c:Computer) WITH COLLECT(c.name) as compsWithAdmins MATCH (c2:Computer) WHERE NOT c2.name in compsWithAdmins RETURN c2.name AS ComputerName ORDER BY ComputerName ASC;compsWithoutAdmins.csv"
