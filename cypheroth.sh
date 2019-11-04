@@ -82,8 +82,9 @@ connCheck() {
     elif [[ "$TEST" =~ "Connected" ]]; then
         if [ "$VERBOSE" == "TRUE" ]; then
             echo "☑ Neo4j started"
-            echo "☑ Connected to the database."
-            echo -e "Running Cypheroth queries."
+            echo -e "☑ Connected to the database.\n"
+            $n4jP "MATCH (x) WHERE x.domain IS NOT null RETURN DISTINCT x.domain AS 'DomainNames';" | tr -d '"'
+            echo -e "\nRunning Cypheroth queries."
         fi
         # Carry on to runQueries function
         runQueries
