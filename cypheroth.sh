@@ -83,7 +83,7 @@ connCheck() {
         if [ "$VERBOSE" == "TRUE" ]; then
             echo "☑ Neo4j started"
             echo -e "☑ Connected to the database.\n"
-            $n4jP --format verbose "MATCH (x) WHERE x.domain IS NOT null RETURN DISTINCT x.domain AS DomainName,count(x.name) AS ObjectCount,labels(x) AS ObjectType ORDER BY ObjectCount DESC" | tr -d '"' | tr -d '[' | tr -d ']'
+            $n4jP --format verbose "MATCH (x) WHERE x.domain IS NOT null RETURN DISTINCT x.domain AS DomainName,count(x.name) AS ObjectCount,labels(x) AS ObjectType ORDER BY ObjectCount DESC" | tr '"' ' ' | tr '[' ' ' | tr ']' ' '
             echo -e "\nRunning Cypheroth queries."
         fi
         # Carry on to runQueries function
