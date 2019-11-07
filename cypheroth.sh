@@ -270,6 +270,7 @@ declare -a queries=(
     "GPOs with Foreign Controllers;MATCH (g:GPO {domain:'$DOMAIN'}) OPTIONAL MATCH (n)-[{isacl:true}]->(g) WHERE (n:User OR n:Computer) AND NOT n.domain = g.domain OPTIONAL MATCH (m)-[:MemberOf*1..]->(:Group)-[{isacl:true}]->(g) WHERE (m:User OR m:Computer) AND NOT m.domain = g.domain WITH COLLECT(n) + COLLECT(m) AS tempVar,g UNWIND tempVar AS foreignGPOControllers RETURN g.name,COUNT(DISTINCT(foreignGPOControllers)) ORDER BY COUNT(DISTINCT(foreignGPOControllers)) DESC;GPOswithForeignControllers.csv"
     "Groups with Foreign Controllers;MATCH (g:Group {domain:'$DOMAIN'}) OPTIONAL MATCH (n)-[{isacl:true}]->(g) WHERE (n:User OR n:Computer) AND NOT n.domain = g.domain OPTIONAL MATCH (m)-[:MemberOf*1..]->(:Group)-[{isacl:true}]->(g) WHERE (m:User OR m:Computer) AND NOT m.domain = g.domain WITH COLLECT(n) + COLLECT(m) AS tempVar,g UNWIND tempVar AS foreignGroupControllers RETURN g.name,COUNT(DISTINCT(foreignGroupControllers)) ORDER BY COUNT(DISTINCT(foreignGroupControllers)) DESC;GroupswithForeignControllers.csv"
     "All Objects in Domain;MATCH (n {domain:'$DOMAIN'}) RETURN n.name AS Name, n.displayname AS DisplayName, n.objectsid AS SID;AllObjectsInDomain.csv"
+    "Users with the cleartext UserPassword field populated;MATCH (u:User) WHERE u.userpassword IS NOT NULL RETURN u.displayname,u.userpassword;UserPassword.csv"
 )
 
 toolCheck
