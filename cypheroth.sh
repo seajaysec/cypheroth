@@ -63,6 +63,10 @@ prepWork() {
     mkdir ./$DOMAIN 2>/dev/null
     # Set alias
     n4jP="cypher-shell -u $USERNAME -p $PASSWORD -a $ADDRESS --format plain"
+    # Alias for removing junk character artifacts
+    noJunk() {
+        tr -d '"' | tr -d '[' | tr -d ']'
+    }
     # Carry on to connCheck Function
     connCheck
 }
@@ -83,7 +87,7 @@ connCheck() {
         if [ "$VERBOSE" == "TRUE" ]; then
             echo "☑ Neo4j started"
             echo -e "☑ Connected to the database.\n"
-            $n4jP --format verbose "MATCH (x) WHERE x.domain IS NOT null RETURN DISTINCT x.domain AS DomainName,count(x.name) AS ObjectCount,labels(x) AS ObjectType ORDER BY ObjectCount DESC" | tr '"' ' ' | tr '[' ' ' | tr ']' ' '
+            $n4jP "MATCH (x) WHERE x.domain IS NOT null RETURN DISTINCT x.domain AS DomainName,count(x.name) AS ObjectCount,labels(x) AS ObjectType ORDER BY ObjectCount DESC" | noJunk | column -s, -t
             echo -e "\nRunning Cypheroth queries."
         fi
         # Carry on to runQueries function
@@ -107,12 +111,12 @@ runQueries() {
         echo ""
         echo -e "$DESCRIPTION"
         # For up to the timeout length, runs query and saves to savepath
-        timeout $TIMEOUT $n4jP "$QUERY" >$SAVEPATH
+        timeout $TIMEOUT $n4jP "$QUERY" | noJunk >$SAVEPATH
         # If the timeout wasn't reached...
         if [ $? -eq 0 ]; then
             echo -e "Saved to $SAVEPATH"
             # Removes double quotes from output file
-            tr -d '"' <$SAVEPATH 1<>$SAVEPATH
+            #noJunk <$SAVEPATH 1<>$SAVEPATH
             # If verbosity is enabled...
             if [ "$VERBOSE" == "TRUE" ]; then
                 echo "Sample:"
