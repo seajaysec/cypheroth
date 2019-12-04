@@ -22,7 +22,7 @@ usage() {
     Flags:
     -u	Neo4J Username (Required)
     -p	Neo4J Password (Required)
-    -d	Fully Qualified Domain Name (Required) (Case Sensitive)
+    -d	Fully Qualified Domain Name (Required)
     -a	Bolt address (Optional) (Default: localhost:7687)
     -t  Query Timeout (Optional) (Default: 30s)
     -v  Verbose mode (Optional) (Default:FALSE)
@@ -32,7 +32,7 @@ usage() {
     ./cypheroth.sh -u neo4j -p BloodHound -d TESTLAB.LOCAL
 
     Example with All Options:
-    ./cypheroth.sh -u neo4j -p hunter2 -d BigTech.corp -a 10.0.0.1:7687 -t 5m -v true
+    ./cypheroth.sh -u neo4j -p hunter2 -d bigtech.corp -a 10.0.0.1:7687 -t 5m -v true
 
     Files are added to a subdirectory named after the FQDN.
     
@@ -87,7 +87,8 @@ connCheck() {
         if [ "$VERBOSE" == "TRUE" ]; then
             echo "☑ Neo4j started"
             echo -e "☑ Connected to the database.\n"
-            $n4jP "MATCH (x) WHERE x.domain IS NOT null RETURN DISTINCT x.domain AS DomainName,count(x.name) AS ObjectCount,labels(x) AS ObjectType ORDER BY ObjectCount DESC" | noJunk | column -s, -t
+            # Converting all domain properties to uppercase for search consistency
+            $n4jP "MATCH (n) SET n.domain = upper(n.domain)"
             echo -e "\nRunning Cypheroth queries."
         fi
         # Carry on to runQueries function
@@ -169,6 +170,7 @@ fi
 VERBOSE='FALSE'
 ADDRESS='127.0.0.1:7687'
 TIMEOUT='30s'
+DOMAIN=$(echo "${DOMAIN}" | tr '[a-z]' '[A-Z]')
 
 # Flag configuration
 while getopts "u:p:d:a:t:v:h" FLAG; do
