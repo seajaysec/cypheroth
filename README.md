@@ -108,3 +108,4 @@ Chris Farrell ([@seajay](https://twitter.com/seajay))
 * Big ups to [@TinkerSec](https://twitter.com/TinkerSec) - the bones of this project were straight up copy/pasted from his [procdump script](https://github.com/tinkersec/scratchpad/blob/master/BashScripts/grabDump.sh) 🙃
 * Many thanks to [@awsmhacks](https://twitter.com/awsmhacks) and [@haus3c](https://twitter.com/haus3c) for collecting useful cypher queries ([here](https://github.com/awsmhacks/awsmBloodhoundCustomQueries) and [here](https://hausec.com/2019/09/09/bloodhound-cypher-cheatsheet/))
 * Hugely appreciate contributions from [@chryzsh](https://twitter.com/chryzsh) and [@mubix](https://twitter.com/mubix)!!
+* All of the amazing contributions from [@cnotin]
