@@ -88,7 +88,7 @@ All Domain Admins;MATCH (u:User) MATCH (g:Group {name:'DOMAIN ADMINS@$DOMAIN'}) 
 
 ### Troubleshooting
 
-If you are running an oudated version of `cypher-shell` you may receive the following error:
+If you are running an outdated version of `cypher-shell` you may receive the following error:
 
 ```
 DateTime is not supported as a return type in Bolt protocol version 1.
