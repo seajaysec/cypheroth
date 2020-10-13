@@ -170,7 +170,6 @@ fi
 VERBOSE='FALSE'
 ADDRESS='127.0.0.1:7687'
 TIMEOUT='30s'
-DOMAIN=$(echo "${DOMAIN}" | tr '[a-z]' '[A-Z]')
 
 # Flag configuration
 while getopts "u:p:d:a:t:v:h" FLAG; do
@@ -201,6 +200,8 @@ while getopts "u:p:d:a:t:v:h" FLAG; do
         ;;
     esac
 done
+
+DOMAIN=$(echo "${DOMAIN}" | tr '[a-z]' '[A-Z]')
 
 # Add queries in the following semicolon-delimited format:
 # "Description;Cypher Query;Output.csv"
