@@ -244,6 +244,7 @@ declare -a queries=(
     "Full Group Property List;MATCH(g:Group) RETURN g.name AS Name, g.domain AS Domain, g.highvalue AS HighValue, g.objectid AS SID, g.description AS Description, g.admincount AS AdminCount;AllGroupProps.csv"
     "Computers with Local Admin Data;MATCH (n)-[:AdminTo]->(c:Computer {domain:'$DOMAIN'}) WITH COUNT(DISTINCT(c)) as computersWithAdminsCount MATCH (c2:Computer {domain:'$DOMAIN'}) RETURN c2.name AS ComputerName;compsWithLocalAdminData.csv"
     "Computers with Session Data;MATCH (c:Computer {domain:'$DOMAIN'})-[:HasSession]->() WITH COUNT(DISTINCT(c)) as computersWithSessions MATCH (c2:Computer {domain:'$DOMAIN'}) RETURN c2.name AS ComputerName;compsWithSessionData.csv"
+    "Computers by number of sessions;MATCH (c:Computer {domain:'$DOMAIN'})-[:HasSession]->(n) WITH COUNT(DISTINCT(n)) AS nb_sessions, c ORDER BY nb_sessions DESC RETURN c.name, nb_sessions;compsWithSessionNumbers.csv"
     "Users with Session Data;MATCH ()-[:HasSession]->(u:User {domain:'$DOMAIN'}) WITH COUNT(DISTINCT(u)) as usersWithSessions MATCH (u2:User {domain:'$DOMAIN',enabled:true}) RETURN u2.name AS UserName;userWithSessionData.csv"
     "Domain users with Local Admin;MATCH (g:Group {domain:'$DOMAIN'}) WHERE g.objectid ENDS WITH '-513' OPTIONAL MATCH (g)-[:AdminTo]->(c1) OPTIONAL MATCH (g)-[:MemberOf*1..]->(:Group)-[:AdminTo]->(c2) WITH COLLECT(c1) + COLLECT(c2) as tempVar UNWIND tempVar AS computers RETURN DISTINCT(computers.name);domainUsersWithLocalAdmin.csv"
     # use "CONTAINS" for SID because SharpHound prefixes well-known SIDs by domain name
