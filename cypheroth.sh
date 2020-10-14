@@ -119,7 +119,7 @@ runQueries() {
             # Removes double quotes from output file
             #noJunk <$SAVEPATH 1<>$SAVEPATH
             # If verbosity is enabled...
-            if [ "$VERBOSE" == "TRUE" ]; then
+            if [ "$VERBOSE" == "TRUE" ] && [ -f "$SAVEPATH" ]; then
                 echo "Sample:"
                 # Disable wordwrap for stdout
                 tput rmam
@@ -129,7 +129,9 @@ runQueries() {
                 tput smam
             fi
             # Show the # of lines in the output file
-            echo "Line Count:" $(wc -l <$SAVEPATH)
+            if [ -f "$SAVEPATH" ]; then
+                echo "Line Count:" $(wc -l <$SAVEPATH)
+            fi
         # If the timeout WAS reached...
         else
             echo "**Query Timed Out**" >&2
@@ -144,9 +146,9 @@ runQueries() {
 endJobs() {
     echo -e "\nRemoving empty output files\n"
     # Finds empty files, then uses xargs to remove them - most cross-platform compatible method available
-    find . -type f -size 0 -print0 | xargs -I{} -0 rm {}
+    find ./"$DOMAIN"/ -type f -size 0 -print0 | xargs -I{} -0 rm {}
     # If ssconvert is installed, join all .csv output to .xls
-    if ssconvert --version >/dev/null; then
+    if command -v ssconvert &>/dev/null; then
         ssconvert --merge-to=./"$DOMAIN"/all.xls ./"$DOMAIN"/*.csv 2>/dev/null
         echo -e "All CSVs joined to ./"$DOMAIN"/all.xls"
         echo
