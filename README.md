@@ -86,6 +86,16 @@ Example 2:
 All Domain Admins;MATCH (u:User) MATCH (g:Group {name:'DOMAIN ADMINS@$DOMAIN'}) RETURN u.displayname;domainAdmins.csv
 ```
 
+### Analyze several domains
+If you need to analyze several domains, you can run multiple instances of Cypheroth in parallel with each one working on its domain.
+You can use the following script for example (10 in parallel).
+
+```bash
+#!/usr/bin/env bash
+DOMAINS=(domA.example.net domB.example.net [...])
+parallel -j10 --lb ./cypheroth.sh <args> -d {} ::: "${DOMAINS[@]}"
+```
+
 ### Troubleshooting
 
 If you are running an outdated version of `cypher-shell` you may receive the following error:
