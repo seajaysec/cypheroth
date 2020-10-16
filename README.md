@@ -116,6 +116,6 @@ Chris Farrell ([@seajay](https://twitter.com/seajay))
 * This tool wouldn't exist without BloodHound - developed by [@_wald0](https://twitter.com/_wald0), [@CptJesus](https://twitter.com/CptJesus), and [@harmj0y](https://twitter.com/harmj0y).
 * Shoutout to the [Bloodhound Slack](https://bloodhoundgang.herokuapp.com) `#cypher_queries` channel for assistance
 * Big ups to [@TinkerSec](https://twitter.com/TinkerSec) - the bones of this project were straight up copy/pasted from his [procdump script](https://github.com/tinkersec/scratchpad/blob/master/BashScripts/grabDump.sh) 🙃
-* Many thanks to [@awsmhacks](https://twitter.com/awsmhacks) and [@haus3c](https://twitter.com/haus3c) for collecting useful cypher queries ([here](https://github.com/awsmhacks/awsmBloodhoundCustomQueries) and [here](https://hausec.com/2019/09/09/bloodhound-cypher-cheatsheet/))
+* Many thanks to [@awsmhacks](https://twitter.com/awsmhacks), [@haus3c](https://twitter.com/haus3c) and [@ScoubiMtl](https://twitter.com/ScoubiMtl) for collecting useful cypher queries ([here](https://github.com/awsmhacks/awsmBloodhoundCustomQueries), [here](https://hausec.com/2019/09/09/bloodhound-cypher-cheatsheet/) and [here](https://github.com/Scoubi/BloodhoundAD-Queries/blob/master/BH%20Red2Blue.txt))
 * Hugely appreciate contributions from [@chryzsh](https://twitter.com/chryzsh) and [@mubix](https://twitter.com/mubix)!!
 * All of the amazing contributions from [@cnotin](https://twitter.com/cnotin)
