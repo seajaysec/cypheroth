@@ -170,7 +170,7 @@ if [ $# -eq 0 ]; then
 fi
 # Initial variable states
 VERBOSE='FALSE'
-ADDRESS='127.0.0.1:7687'
+ADDRESS='neo4j://127.0.0.1:7687'
 TIMEOUT='30s'
 
 # Flag configuration
