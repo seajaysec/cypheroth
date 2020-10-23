@@ -33,6 +33,8 @@ Please share any additional useful queries so I can add them to this project!
 * Optional: If the `ssconvert` command is present, the script will combine all .csv output to sheets within a .xls file
   * _Install the gnumeric toolset with apt or brew to gain access to ssconvert_
 
+On Windows we recommend using WSL to run this script, while the neo4j database runs on Windows. You will just need to install the `cypher-shell` package in WSL (Linux).
+
 ### Usage
 
 Flags:
